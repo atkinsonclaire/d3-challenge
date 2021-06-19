@@ -1,52 +1,39 @@
-var svgWidth = 960;
-var svgHeight = 660;
+var margin = {top: 10, right: 30, bottom: 30, left: 60},
+    width = 460 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
 
-var chartMargin = {
-  top: 30,
-  right: 30,
-  bottom: 30,
-  left: 30
-};
+var svg = d3.select("#scatter")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
 
-var chartWidth = svgWidth - chartMargin.left - chartMargin.right;
-var chartHeight = svgHeight - chartMargin.top - chartMargin.bottom;
-
-var svg = d3
-  .select("body")
-  .append("scatter")
-  .attr("height", svgHeight)
-  .attr("width", svgWidth);
-
-var chartGroup = svg.append("g")
-  .attr("transform", `translate(${chartMargin.left}, ${chartMargin.top})`);
-
-d3.csv("data/data.csv").then(function(newsData) {
-
-    var yScale = d3.scaleLinear()
-      .domain([0, d3.max(newsData.healthcare)])
-      .range([chartHeight, 0]);
+d3.csv("data.csv", function(newsData) {
     
-    var xScale = d3.scaleBand()
-      .domain(newsData.poverty)
-      .range([0, chartWidth])
-      .padding(0.05);
+    var x = d3.scaleLinear()
+        .domain([0, 4000])
+        .range([ 0, width ]);
     
-    var yAxis = d3.axisLeft(yScale);
-    var xAxis = d3.axisBottom(xScale);
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
     
-    chartGroup.append("g")
-      .attr("transform", `translate(0, ${chartHeight})`)
-      .call(xAxis);
+    var y = d3.scaleLinear()
+        .domain([0, 500000])
+        .range([ height, 0]);
     
-    chartGroup.append("g")
-      .call(yAxis);
+    svg.append("g")
+        .call(d3.axisLeft(y));
     
-    chartGroup.selectAll(".dot")
+    svg.append('g')
+        .selectAll("dot")
         .data(newsData)
         .enter()
         .append("circle")
-        .attr("x", newsData.poverty[i])
-        .attr("y", newsData.healthcare[i])
-        .attr("r", 1.5)
-        .style("fill", "#69b3a2")
-}); 
+            .attr("cx", function (d) { return x(d.poverty); } )
+            .attr("cy", function (d) { return y(d.healthcare); } )
+            .attr("r", 1.5)
+            .style("fill", "#69b3a2")
+})
