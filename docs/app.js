@@ -11,11 +11,9 @@ var chartMargin = {
 var chartWidth = svgWidth - chartMargin.left - chartMargin.right;
 var chartHeight = svgHeight - chartMargin.top - chartMargin.bottom;
 
-var svg = d3
-  .select("scatter")
-  .append("svg")
-  .attr("height", svgHeight)
-  .attr("width", svgWidth);
+var svg = d3.select("scatter").append("svg")
+    .attr("height", svgHeight)
+    .attr("width", svgWidth);
 
 var chartGroup = svg.append("g")
   .attr("transform", `translate(${chartMargin.left}, ${chartMargin.top})`);
@@ -26,7 +24,7 @@ d3.csv("data.csv").then(function(newsData) {
       .domain([0, d3.max(newsData.healthcare)])
       .range([chartHeight, 0]);
     
-    var xScale = d3.scaleBand()
+    var xScale = d3.scaleLinear()
       .domain(newsData.poverty)
       .range([0, chartWidth])
       .padding(0.05);
@@ -45,8 +43,12 @@ d3.csv("data.csv").then(function(newsData) {
         .data(newsData)
         .enter()
         .append("circle")
-        .attr("x", newsData.poverty[i])
-        .attr("y", newsData.healthcare[i])
-        .attr("r", 1.5)
-        .style("fill", "#69b3a2")
+            .attr("x", function(newsData) {
+                return x(newsData.poverty);
+            })
+            .attr("y", function(newsData) {
+                return y(newsData.healthcare);
+            })
+            .attr("r", 1.5)
+            .style("fill", "#69b3a2")
 }); 
